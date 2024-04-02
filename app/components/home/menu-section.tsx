@@ -34,6 +34,7 @@ export default function MenuSection() {
         ))}
       </View>
       <FlatList
+        style={styles.fList}
         data={menuItems}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
         renderItem={({item}) => (
@@ -71,6 +72,8 @@ const styles = StyleSheet.create({
   },
 
   categoryItemText: {color: 'white'},
+
+  fList: {paddingBottom: 20},
 
   menuBreakdown: {
     height: '20%',
