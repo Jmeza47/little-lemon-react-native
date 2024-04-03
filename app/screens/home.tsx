@@ -1,20 +1,20 @@
-import {useContext} from 'react';
+import {useState} from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   Image,
   KeyboardAvoidingView,
   Platform,
   TouchableOpacity,
 } from 'react-native';
-import {UserContext} from '../context/authentification';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import HeroSection from '../components/home/hero-section';
 import MenuSection from '../components/home/menu-section';
+import {QueryContext} from '../context/serchBar';
+import {useLinkTo} from '@react-navigation/native';
 
 export default function Home() {
-  const {setLoggedUser} = useContext(UserContext);
+  const [querySearch, setQuerySearch] = useState<string>('');
 
   const clearUserInformation = async () => {
     try {
@@ -22,33 +22,35 @@ export default function Home() {
     } catch (error) {}
   };
 
-  return (
-    <KeyboardAvoidingView
-      style={styles.mainContainer}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      enabled={false}
-    >
-      <View style={styles.homeHeader}>
-        <Image source={require('../assets/Logo.png')} style={styles.logo} />
-        <TouchableOpacity
-          style={{
-            backgroundColor: 'red',
-            height: 60,
-            width: 60,
-            borderRadius: 25,
-          }}
-          onPress={() => {
-            clearUserInformation();
-            setLoggedUser(false);
-          }}
-        >
-          <Text>User</Text>
-        </TouchableOpacity>
-      </View>
-      <HeroSection />
+  const navigate = useLinkTo();
 
-      <MenuSection />
-    </KeyboardAvoidingView>
+  return (
+    <QueryContext.Provider value={{querySearch, setQuerySearch}}>
+      <KeyboardAvoidingView
+        style={styles.mainContainer}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        enabled={false}
+      >
+        <View style={styles.homeHeader}>
+          <Image source={require('../assets/Logo.png')} style={styles.logo} />
+
+          <TouchableOpacity
+            style={{
+              backgroundColor: 'red',
+              height: 60,
+              width: 60,
+              borderRadius: 25,
+            }}
+            onPress={() => {
+              navigate('/User');
+            }}
+          ></TouchableOpacity>
+        </View>
+        <HeroSection />
+
+        <MenuSection />
+      </KeyboardAvoidingView>
+    </QueryContext.Provider>
   );
 }
 

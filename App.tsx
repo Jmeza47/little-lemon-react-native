@@ -1,6 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
-import {StyleSheet} from 'react-native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 import {SplashScreen} from './app/screens/splash-screen';
@@ -10,21 +9,20 @@ import SignUp from './app/screens/auth/sign-up';
 import Home from './app/screens/home';
 import {createTables} from './app/db/db';
 import {connectToDataBase} from './app/db/db';
+import UserPage from './app/components/user/userPage';
 
 function App(): JSX.Element {
   const [isUserLoggedIn, setLoggedUser] = useState(false);
 
   const value = {isUserLoggedIn, setLoggedUser};
-  console.warn(isUserLoggedIn);
   const Stack = createNativeStackNavigator();
 
   const loadData = useCallback(async () => {
     try {
       const db = await connectToDataBase();
       await createTables(db);
-      console.log(db.dbname);
     } catch (error) {
-      console.error('eeee', 'pedo');
+      console.error('Error creating tables', error);
     }
   }, []);
 
@@ -37,7 +35,22 @@ function App(): JSX.Element {
       <NavigationContainer>
         <Stack.Navigator>
           {isUserLoggedIn ? (
-            <Stack.Screen name="Home" component={Home} />
+            <>
+              <Stack.Screen
+                name="Home"
+                component={Home}
+                options={{
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name="User"
+                component={UserPage}
+                options={{
+                  headerShown: false,
+                }}
+              />
+            </>
           ) : (
             <Stack.Screen
               options={{headerShown: false}}
@@ -52,12 +65,5 @@ function App(): JSX.Element {
     </UserContext.Provider>
   );
 }
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    flex: 1,
-    fontFamily: 'MarkaziText-Regular',
-  },
-});
 
 export default App;

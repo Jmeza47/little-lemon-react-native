@@ -1,5 +1,5 @@
 import React from 'react';
-import {Alert, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {Text, StyleSheet, TouchableOpacity} from 'react-native';
 import {primaryColor1, primaryColor2} from '../utils/constants';
 
 type ButtonSize = 'sm' | 'md' | 'lg' | 'full';
@@ -8,21 +8,22 @@ export default function PrimaryButton({
   title,
   size,
   onPress,
+  disabled,
 }: {
   title: string;
   size: ButtonSize;
   onPress?: () => void;
+  disabled?: boolean;
 }) {
   return (
     <TouchableOpacity
       activeOpacity={0.6}
       style={
-        (size === 'sm' && [style.primaryButton, style.smallSizeButton]) ||
-        (size === 'full' && [style.primaryButton, style.fullSizeButton]) ||
-        (size === 'md' && [style.primaryButton, style.mediumSizeButton]) ||
-        (size === 'lg' && [style.primaryButton, style.largeSizeButton])
+        (disabled && [style.primaryButton, style.disabledStyle]) ||
+        (size === 'full' && [style.primaryButton, style.fullSizeButton])
       }
       onPress={onPress}
+      disabled={disabled}
     >
       <Text style={style.buttonTitle}>{title}</Text>
     </TouchableOpacity>
@@ -55,5 +56,9 @@ const style = StyleSheet.create({
     fontFamily: 'Karla',
     fontWeight: 'bold',
     fontSize: 18,
+  },
+
+  disabledStyle: {
+    backgroundColor: 'red',
   },
 });

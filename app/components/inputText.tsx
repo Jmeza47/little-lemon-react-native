@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {SyntheticEvent} from 'react';
 import {View, TextInput, Text, StyleSheet} from 'react-native';
 import {
   identityStyle,
@@ -10,12 +10,16 @@ type BasicInputText = {
   label: string;
   placeholder: string;
   secureTextEntry?: boolean;
+  value?: string;
+  onChange?: (e: SyntheticEvent) => {};
 };
 
 export default function BasicInputText({
   label,
   placeholder,
   secureTextEntry,
+  value,
+  onChange,
 }: BasicInputText) {
   return (
     <View style={style.formSection}>
@@ -25,6 +29,7 @@ export default function BasicInputText({
         placeholder={placeholder}
         style={style.defaultTextInput}
         secureTextEntry={secureTextEntry}
+        value={value}
       />
     </View>
   );

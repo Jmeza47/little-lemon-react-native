@@ -17,30 +17,31 @@ import PrimaryButton from '../components/primaryButton';
 import {useNavigation, Link} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-type userInformation = {
+interface UserInformation {
   userName: string;
   userEmail: string;
-};
+}
 
 export function SplashScreen() {
-  const [userInformation, setUserInformation] = useState<userInformation>({
+  const [userInformation, setUserInformation] = useState<UserInformation>({
     userName: '',
     userEmail: '',
   });
-
+  const {userName, userEmail} = userInformation;
   const {setLoggedUser} = useContext(UserContext);
   const navigate = useNavigation();
 
   const handleStoreUserData = async () => {
-    const {userName, userEmail} = userInformation;
-    const name = ['userName', userName];
-    const email = ['userEmail', userEmail];
     try {
-      await AsyncStorage.multiSet([name, email]);
+      await AsyncStorage.multiSet([
+        ['userName', userName],
+        ['userEmail', userEmail],
+      ]);
       setLoggedUser(true);
-      console.warn(userName, userEmail);
+      //console.warn(userName, userEmail);
     } catch (err) {}
   };
+
   return (
     <KeyboardAvoidingView
       style={styles.mainContainer}
@@ -74,10 +75,12 @@ export function SplashScreen() {
                 setUserInformation(prev => ({...prev, userEmail: text}))
               }
             />
+
             <PrimaryButton
               title="Login"
               size="full"
               onPress={handleStoreUserData}
+              disabled={!userName || !userEmail}
             />
           </View>
 

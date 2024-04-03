@@ -1,7 +1,12 @@
+import {useState, useContext} from 'react';
 import {ImageBackground, StyleSheet, Text, TextInput, View} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {identityStyle, secondaryColor4} from '../../utils/constants';
+import {QueryContext} from '../../context/serchBar';
 export default function HeroSection() {
+  const [queryTextValue, setQueryTextValue] = useState('');
+  const {setQuerySearch} = useContext(QueryContext);
+
   return (
     <View style={{height: '35%'}}>
       <ImageBackground
@@ -18,7 +23,17 @@ export default function HeroSection() {
               We are a family owned Mediterranean restaurant, focused on
               traditional recipes served with a modern twist.
             </Text>
-            <TextInput style={styles.inputs} placeholder="Search" />
+            <TextInput
+              style={styles.inputs}
+              placeholder="Search"
+              clearButtonMode="while-editing"
+              value={queryTextValue}
+              onChange={e => setQueryTextValue(e.nativeEvent.text)}
+              onSubmitEditing={() => {
+                setQuerySearch(queryTextValue);
+                setQueryTextValue('');
+              }}
+            />
           </View>
         </LinearGradient>
       </ImageBackground>

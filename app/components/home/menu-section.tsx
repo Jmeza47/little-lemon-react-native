@@ -1,41 +1,88 @@
-import {FlatList, StyleSheet, View, Text} from 'react-native';
+import {FlatList, StyleSheet, View, Text, TouchableOpacity} from 'react-native';
 import MenuItem from './menuItem';
-import {useState, useEffect} from 'react';
+import {useState, useEffect, useCallback, useContext} from 'react';
 import type {MenuItems} from '../../utils/types';
 import {secondaryColor4} from '../../utils/constants';
+import {
+  getMenuItems,
+  getMenuItemsFromDB,
+  insertItemsIntoDB,
+  getMenuItemsFromCategory,
+} from '../../db/handles';
+import {QueryContext} from '../../context/serchBar';
 
 export default function MenuSection() {
   const [menuItems, setMenuItems] = useState<MenuItems[]>();
+  const [queryItems, setQueryItems] = useState<MenuItems[]>();
 
-  const getMenuItems = async () => {
+  const {querySearch} = useContext(QueryContext);
+
+  const categories = [...new Set(menuItems?.map(item => item.category)), 'all'];
+
+  const handleAddItems = useCallback(async () => {
     try {
-      const data = await fetch(
-        'https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/capstone.json',
+      const dataFromDB = await getMenuItemsFromDB();
+      const dataFromApi = await getMenuItems();
+
+      if (dataFromDB === undefined || dataFromDB.length < 1) {
+        setMenuItems(dataFromApi);
+        insertItemsIntoDB(dataFromApi);
+      } else {
+        setMenuItems(dataFromDB);
+      }
+    } catch (error) {
+      throw new Error('Error Getting Items');
+    }
+  }, []);
+
+  //unused function, I think that is faster query the categories in the state, that get the results from the table
+  const catQuery = async (categorie: string) => {
+    const queryResult = await getMenuItemsFromCategory(categorie);
+    setQueryItems(queryResult);
+  };
+
+  const handleCategoryQuery = (categorie: string) => {
+    const queryResult = menuItems?.filter(item => item.category === categorie);
+    setQueryItems(categorie === 'all' ? menuItems : queryResult);
+  };
+
+  const handleQuerySearch = () => {
+    if (querySearch !== null || querySearch !== '') {
+      const result = menuItems?.filter(
+        item =>
+          item.name.includes(querySearch) ||
+          item.description.includes(querySearch),
       );
-      const {menu} = await data.json();
-      setMenuItems(menu);
-    } catch (error) {}
+      setQueryItems(result);
+    }
   };
 
   useEffect(() => {
-    getMenuItems();
+    handleAddItems();
   }, []);
 
-  const categories = [...new Set(menuItems?.map(item => item.category))];
-  console.warn(categories);
+  useEffect(() => {
+    handleQuerySearch();
+  }, [querySearch]);
 
   return (
     <View style={styles.mainContainer}>
       <View style={styles.menuBreakdown}>
         {categories.map(categorie => (
-          <View style={styles.categoryItem}>
+          <TouchableOpacity
+            key={categorie}
+            style={styles.categoryItem}
+            onPress={() => {
+              handleCategoryQuery(categorie);
+            }}
+          >
             <Text style={styles.categoryItemText}>{categorie}</Text>
-          </View>
+          </TouchableOpacity>
         ))}
       </View>
       <FlatList
         style={styles.fList}
-        data={menuItems}
+        data={!queryItems?.length ? menuItems : queryItems}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
         renderItem={({item}) => (
           <MenuItem
